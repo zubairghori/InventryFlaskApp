@@ -13,7 +13,7 @@ import jwt , datetime
 app = Flask(__name__)
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://ycrhcrhfrcjqyz:7fd8060bfcdad4071b1495b4faf829e61550cb291535b465a402fb0fca64d29e@ec2-54-163-234-4.compute-1.amazonaws.com:5432/det2gahm246c0g'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://lfeamxcqafgsfh:8e02a7f6660833a012e4021d5956462d7e84bf5c38c1761190e4e757f671badc@ec2-23-23-222-147.compute-1.amazonaws.com:5432/d6pffsqn0ti14a'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 CORS(app)
@@ -123,14 +123,16 @@ class Products(db.Model):
     amount = db.Column(db.Integer())
     quantity = db.Column(db.Integer(),nullable=True)
     date = db.Column(db.Date,nullable=True)
+    userID  = db.Column(db.Integer,db.ForeignKey('userFlask.id'))
 
-    def __init__(self, name, manufacture, description, amount,quantity,date):
+    def __init__(self, name, manufacture, description, amount,quantity,date,userID):
         self.name = name
         self.manufacture = manufacture
         self.amount = amount
         self.description = description
         self.quantity = quantity
         self.date = date
+        self.userID = userID
 
 
     def __init__(self, data):
@@ -150,11 +152,13 @@ class Store(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     storeName = db.Column(db.String(120))
     location = db.Column(db.String(120))
+    userID  = db.Column(db.Integer,db.ForeignKey('userFlask.id'))
 
 
-    def __init__(self, storeName, location):
+    def __init__(self, storeName, location,userID):
         self.storeName = storeName
         self.location = location
+        self.userID = userID
 
     def __init__(self, data):
         self.storeName = data['storeName']
@@ -174,8 +178,9 @@ class Sales(db.Model):
     totalAmount = db.Column(db.Integer())
     storeID = db.Column(db.Integer,db.ForeignKey('StoresFlask.id'))
     productID = db.Column(db.Integer,db.ForeignKey('ProductsFlask.id'))
+    userID  = db.Column(db.Integer,db.ForeignKey('userFlask.id'))
 
-    def __init__(self, saleDate, quantity, stockSold, totalAmount,storeID,productID):
+    def __init__(self, saleDate, quantity, stockSold, totalAmount,storeID,productID,userID):
         # self.id  = id
         self.saleDate = saleDate
         self.quantity = quantity
@@ -183,6 +188,7 @@ class Sales(db.Model):
         self.totalAmount = totalAmount
         self.storeID = storeID
         self.productID = productID
+        self.userID = userID
 
     def __init__(self, data):
         self.saleDate = data['saleDate']
@@ -197,7 +203,7 @@ class Sales(db.Model):
     def __repr__(self):
         return '<User %r>' % self.productID
 
-# db.create_all()
+db.create_all()
 
 @app.route('/signup', methods = ['POST'])
 def signup():
@@ -233,27 +239,36 @@ def login():
 
 @app.route('/AddProduts', methods=['POST'])
 def AddProduts():
+    try:
+        token = request.headers['token']
+    except:
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
+    else:
         try:
-            id = request.form['uid']
-            name = request.form['name']
-            manufacture = request.form['manufacture']
-            description = request.form['description']
-            amount = request.form['amount']
-            quantity = request.form['quantity']
-            date = request.form['date']
-
+            id = User.verifyToken(token=token)
         except:
-            return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'})
+            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
         else:
-            user = User.query.filter_by(id=id).all()
-            if len(user) == 0:
-                return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'})
+            try:
+                name = request.json['name']
+                manufacture = request.json['manufacture']
+                description = request.json['description']
+                amount = request.json['amount']
+                quantity = request.json['quantity']
+                date = request.json['date']
+            except:
+                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'}),404)
             else:
-                user = user[0]
-                product = Products(request.form)
-                db.session.add(product)
-                db.session.commit()
-                return jsonify({'data': product, 'message': 'Your report has been submitted sucessfully', 'error': ''})
+                user = User.query.filter_by(id=id).all()
+                if len(user) == 0:
+                    return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'}),404)
+                else:
+                    user = user[0]
+                    product = Products(request.json)
+                    product.userID = id
+                    db.session.add(product)
+                    db.session.commit()
+                    return jsonify({'data': product, 'message': 'Your report has been submitted sucessfully', 'error': ''})
 
 @app.route('/getProducts/<int:id>/', methods=['GET'])
 def getProducts(id):

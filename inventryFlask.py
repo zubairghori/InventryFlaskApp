@@ -339,24 +339,33 @@ def editProduct():
 @app.route('/deleteProduct', methods=['DELETE'])
 def deleteProduct():
     try:
-        pid = request.form['pid']
-        uid = request.form['uid']
+        token = request.headers['token']
     except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'})
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
     else:
-        user = User.query.filter_by(id = uid).all()
-        if len(user) != 0:
-            user = user[0]
-            product = Products.query.filter_by(id=pid).all()
-            if len(product) != 0 :
-                product = product[0]
-                db.session.delete(product)
-                db.session.commit();
-                return jsonify({'data': '', 'message': 'Sucessfully Deleted', 'error': ''})
-            else:
-                return jsonify({'data': '', 'message': 'Failed', 'error': 'Product with pid = ' + pid + ' not available'})
+        try:
+            id = User.verifyToken(token=token)
+        except:
+            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
         else:
-            return jsonify({'data': '', 'message': 'Failed', 'error': 'User is not available with id  = ' + uid})
+            try:
+                pid = request.json['pid']
+            except:
+                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'}),404)
+            else:
+                user = User.query.filter_by(id = id).all()
+                if len(user) != 0:
+                    user = user[0]
+                    product = Products.query.filter_by(id=pid,userID=id).all()
+                    if len(product) != 0 :
+                        product = product[0]
+                        db.session.delete(product)
+                        db.session.commit();
+                        return jsonify({'data': '', 'message': 'Sucessfully Deleted', 'error': ''})
+                    else:
+                        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Product with pid = ' + str(pid) + ' not available'}),404)
+                else:
+                    return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'User is not available with id  = ' + uid}),404)
 
 @app.route('/addStores', methods=['POST'])
 def addStores():

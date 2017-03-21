@@ -28,8 +28,8 @@
       <file leaf-file-name="inventryFlask.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/inventryFlask.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="336" column="0" lean-forward="true" selection-start-line="336" selection-start-column="0" selection-end-line="336" selection-end-column="0" />
+            <state relative-caret-position="84">
+              <caret line="339" column="20" lean-forward="false" selection-start-line="339" selection-start-column="20" selection-end-line="339" selection-end-column="20" />
               <folding>
                 <element signature="e#0#63#0" expanded="true" />
                 <element signature="e#937#2161#0" expanded="false" />
@@ -37,7 +37,8 @@
                 <element signature="e#7813#9229#0" expanded="false" />
                 <element signature="e#9298#10078#0" expanded="false" />
                 <element signature="e#10148#12169#0" expanded="false" />
-                <marker date="1490113472000" expanded="false" signature="6950:7744" ph="..." />
+                <element signature="e#12246#13669#0" expanded="false" />
+                <marker date="1490113821000" expanded="false" signature="6950:7744" ph="..." />
               </folding>
             </state>
           </provider>
@@ -199,8 +200,8 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/inventryFlask.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="336" column="0" lean-forward="true" selection-start-line="336" selection-start-column="0" selection-end-line="336" selection-end-column="0" />
+        <state relative-caret-position="84">
+          <caret line="339" column="20" lean-forward="false" selection-start-line="339" selection-start-column="20" selection-end-line="339" selection-end-column="20" />
           <folding>
             <element signature="e#0#63#0" expanded="true" />
             <element signature="e#937#2161#0" expanded="false" />
@@ -208,7 +209,8 @@
             <element signature="e#7813#9229#0" expanded="false" />
             <element signature="e#9298#10078#0" expanded="false" />
             <element signature="e#10148#12169#0" expanded="false" />
-            <marker date="1490113472000" expanded="false" signature="6950:7744" ph="..." />
+            <element signature="e#12246#13669#0" expanded="false" />
+            <marker date="1490113821000" expanded="false" signature="6950:7744" ph="..." />
           </folding>
         </state>
       </provider>

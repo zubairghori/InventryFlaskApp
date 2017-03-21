@@ -5,6 +5,9 @@ from sqlalchemy import or_,and_
 # import matplotlib.pyplot as plt
 # import numpy as np
 # from pylab import *
+from flask_cors import CORS, cross_origin
+from flask.ext.bcrypt import Bcrypt
+import jwt , datetime
 
 
 app = Flask(__name__)
@@ -12,6 +15,8 @@ app = Flask(__name__)
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://ycrhcrhfrcjqyz:7fd8060bfcdad4071b1495b4faf829e61550cb291535b465a402fb0fca64d29e@ec2-54-163-234-4.compute-1.amazonaws.com:5432/det2gahm246c0g'
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+CORS(app)
 
 
 
@@ -82,16 +87,31 @@ class User(db.Model):
         self.name = name
         self.email = email
         self.Role = Role
-        self.password = password
+        self.password  = self.encrypt(password)
 
     def __init__(self, data):
         self.name = data['name']
         self.email = data['email']
-        self.password = data['password']
+        self.password = self.encrypt(data['password'])
         self.Role = data['Role']
 
     def __repr__(self):
         return '<User %r>' % self.name
+
+
+    def encrypt(self,password):
+        return bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def decrypt(self,enteredPassword):
+        return bcrypt.check_password_hash(self.password, enteredPassword)
+
+    def generateToken(self):
+        return jwt.encode({'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=180) , 'id':self.id}, "secret",algorithm='HS256').decode()
+
+    @staticmethod
+    def verifyToken(token):
+        return jwt.decode(token,"secret")['id']
+
 
 
 class Products(db.Model):
@@ -181,36 +201,35 @@ class Sales(db.Model):
 
 @app.route('/signup', methods = ['POST'])
 def signup():
-    try:
-        email = request.form['email']
-        name = request.form['name']
-        role = request.form['Role']
-        password = request.form['password']
-
-    except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Required parametes are missing OR Invalid Parameters'})
-    else:
-        if len(User.query.filter_by(email=email).all()) == 0:
-                user = User(request.form)
-                db.session.add(user)
-                db.session.commit()
-                return jsonify({'data': user, 'message': 'Sucessfully Registered', 'error': ''})
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'User with ' + email + ' Already registered'})
+    email = request.json['email']
+    if len(User.query.filter_by(email=email).all()) == 0:
+        user = User(request.json)
+        db.session.add(user)
+        db.session.commit()
+        token = user.generateToken()
+        return jsonify({'data': {"user": user, "token": token}, 'message': 'Sucessfully Registered', 'error': ''})
+    return make_response(
+        jsonify({'data': '', 'message': 'Failed', 'error': 'User with ' + email + ' Already registered'}), 409)
 
 
 @app.route('/login', methods = ['POST'])
 def login():
     try:
-        email = request.form['email']
-        password = request.form['password']
+        email = request.json['email']
+        password = request.json['password']
     except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Parameters'})
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Parameters'}), 404)
     else:
-        user = User.query.filter_by(email=email, password=password).all()
+        user = User.query.filter_by(email=email).all()
         if len(user) != 0:
             user = user[0]
-            return jsonify({'data': user, 'message': 'Sucessfully Registered', 'error': ''})
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid email/Password'})
+            if user.decrypt(enteredPassword=password) == True:
+                token = user.generateToken()
+                return jsonify({'data': {'user': user, 'token': token}, 'message': 'Sucessfully Login', 'error': ''})
+            else:
+                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Password'}), 401)
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid email'}), 401)
+
 
 @app.route('/AddProduts', methods=['POST'])
 def AddProduts():

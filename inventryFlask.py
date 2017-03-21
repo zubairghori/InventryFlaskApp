@@ -270,23 +270,25 @@ def AddProduts():
                     db.session.commit()
                     return jsonify({'data': product, 'message': 'Your report has been submitted sucessfully', 'error': ''})
 
-@app.route('/getProducts/<int:id>/', methods=['GET'])
-def getProducts(id):
+@app.route('/getProducts', methods=['GET'])
+def getProducts():
     try:
-        id = id
+        token = request.headers['token']
     except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Parameter'})
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
     else:
-        user = User.query.filter_by(id=id).all()
-        if len(user) == 0:
-            return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'})
+        try:
+            id = User.verifyToken(token=token)
+        except:
+            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
         else:
-            user = user[0]
-            if user.Role == False:
-                allProducts = Products.query.all()
-                return jsonify({'data': allProducts, 'message': 'Sucessfull', 'error': ''})
+            user = User.query.filter_by(id=id).all()
+            if len(user) == 0:
+                return  make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'}),404)
             else:
-                jsonify({'data': '', 'message': 'Failed', 'error': 'You have not permission to get products'})
+                user = user[0]
+                allProducts = Products.query.filter_by(userID=id).all()
+                return jsonify({'data': allProducts, 'message': 'Sucessfull', 'error': ''})
 
 @app.route('/editProduct', methods=['POST'])
 def editProduct():

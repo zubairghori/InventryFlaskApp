@@ -293,37 +293,47 @@ def getProducts():
 @app.route('/editProduct', methods=['POST'])
 def editProduct():
     try:
-        uid = request.form['uid']
-        pid = request.form['pid']
-        name = request.form['name']
-        manufacture = request.form['manufacture']
-        description = request.form['description']
-        amount = request.form['amount']
-        quantity = request.form['quantity']
-        date = request.form['date']
-
+        token = request.headers['token']
     except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'})
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
     else:
-        user = User.query.filter_by(id = uid).all()
-        if len(user) != 0:
-            user = user[0]
-            product = Products.query.filter_by(id=pid).all()
-            if len(product) != 0:
-                product = product[0]
-                product.name = name
-                product.manufacture = manufacture
-                product.description = description
-                product.amount = amount
-                product.quantity = quantity
-                product.date = date
-                db.session.add(product)
-                db.session.commit()
-                return jsonify({'data': product, 'message': 'Sucessfully Updated', 'error': ''})
-            else:
-                return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid product id'})
+        try:
+            id = User.verifyToken(token=token)
+        except:
+            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
         else:
-            return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'})
+            try:
+                # uid = request.json['uid']
+                pid = request.json['pid']
+                name = request.json['name']
+                manufacture = request.json['manufacture']
+                description = request.json['description']
+                amount = request.json['amount']
+                quantity = request.json['quantity']
+                date = request.json['date']
+
+            except:
+                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'}),404)
+            else:
+                user = User.query.filter_by(id = id).all()
+                if len(user) != 0:
+                    user = user[0]
+                    product = Products.query.filter_by(id=pid,userID=id).all()
+                    if len(product) != 0:
+                        product = product[0]
+                        product.name = name
+                        product.manufacture = manufacture
+                        product.description = description
+                        product.amount = amount
+                        product.quantity = quantity
+                        product.date = date
+                        db.session.add(product)
+                        db.session.commit()
+                        return jsonify({'data': product, 'message': 'Sucessfully Updated', 'error': ''})
+                    else:
+                        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid product id'}),404)
+                else:
+                    return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'}),404)
 
 
 @app.route('/deleteProduct', methods=['DELETE'])

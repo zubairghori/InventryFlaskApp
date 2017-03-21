@@ -370,38 +370,52 @@ def deleteProduct():
 @app.route('/addStores', methods=['POST'])
 def addStores():
     try:
-        id = request.form['uid']
-        storeName = request.form['storeName']
-        location = request.form['location']
-
+        token = request.headers['token']
     except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'})
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
     else:
-        user = User.query.filter_by(id=id).all()
-        if len(user) != 0:
-            store = Store(request.form)
-            db.session.add(store)
-            db.session.commit()
-            return jsonify({'data': store, 'message': 'Sucessfully Registered', 'error': ''})
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'User with ' + id + ' not registered'})
-
-@app.route('/getStores/<int:id>/', methods=['GET'])
-def getStores(id):
-    try:
-        id = id
-    except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Parameter'})
-    else:
-        user = User.query.filter_by(id=id).all()
-        if len(user) == 0:
-            return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'})
+        try:
+            id = User.verifyToken(token=token)
+        except:
+            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
         else:
-            user = user[0]
-            if user.Role == False:
-                stores = Store.query.all()
-                return jsonify({'data': stores, 'message': 'Sucessfull', 'error': ''}, )
+            try:
+                storeName = request.json['storeName']
+                location = request.json['location']
+
+            except:
+                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'}),404)
             else:
-                return  jsonify({'data': '', 'message': 'Failed', 'error': 'You have not permission to get products'})
+                user = User.query.filter_by(id=id).all()
+                if len(user) != 0:
+                    store = Store(request.json)
+                    store.userID = id
+                    db.session.add(store)
+                    db.session.commit()
+                    return jsonify({'data': store, 'message': 'Sucessfully Registered', 'error': ''})
+                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'User with ' + id + ' not registered'}),404)
+
+@app.route('/getStores', methods=['GET'])
+def getStores():
+    try:
+        token = request.headers['token']
+    except:
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
+    else:
+        try:
+            id = User.verifyToken(token=token)
+        except:
+            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
+        else:
+            user = User.query.filter_by(id=id).all()
+            if len(user) == 0:
+                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'}),404)
+            else:
+                user = user[0]
+                stores = Store.query.filter_by(userID=id).all()
+                return jsonify({'data': stores, 'message': 'Sucessfull', 'error': ''}, )
+
+
 
 
 @app.route('/AddSales', methods=['POST'])

@@ -421,50 +421,59 @@ def getStores():
 @app.route('/AddSales', methods=['POST'])
 def AddSales():
     try:
-        pid = request.form['pid']
-        sid = request.form['sid']
-        aid = request.form['uid']
-        saleDate = request.form['saleDate']
-        quantity = request.form['quantity']
-        stockSold = request.form['stockSold']
-
+        token = request.headers['token']
     except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'})
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
     else:
-        user = User.query.filter_by(id=aid).all()
-        if len(user) != 0:
-            product = Products.query.filter_by(id=pid).all()
-            store = Store.query.filter_by(id=sid).all()
-            if len(product) != 0 :
-                if len(store) != 0:
-                    product = product[0]
-                    store = store[0]
-                    quantity = int(quantity)
-                    if product.quantity >= quantity:
-                        totalAmt = quantity * product.amount
-                        product.quantity = product.quantity - quantity
-                        db.session.add(product)
-                        db.session.commit()
-                        sale = Sales()
-                        sale.storeID = sid
-                        sale.productID = pid
-                        sale.quantity = quantity
-                        sale.saleDate = saleDate
-                        sale.stockSold = stockSold
-                        sale.totalAmount = totalAmt
-                        db.session.add(sale)
-                        db.session.commit()
-                        return jsonify({'data': '', 'message': 'Sucessfully','error': 'Product with pid = ' + pid + ' added in Sales'})
-
-                    else:
-                        return jsonify({'data': '', 'message': 'Failed', 'error': 'Your desired quantity = ' + str(
-                            quantity) + ' and available in stock is = ' + str(product.quantity)})
-                else:
-                    return jsonify({'data': '', 'message': 'Failed', 'error': 'Store with ' + sid + ' not available'})
-            else:
-                return jsonify({'data': '', 'message': 'Failed', 'error': 'Product with ' + pid + ' not available'})
+        try:
+            id = User.verifyToken(token=token)
+        except:
+            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
         else:
-            return jsonify({'data': '', 'message': 'Failed', 'error': 'User with ' + aid + ' not available'})
+            try:
+                pid = request.json['pid']
+                sid = request.json['sid']
+                saleDate = request.json['saleDate']
+                quantity = request.json['quantity']
+                stockSold = request.json['stockSold']
+
+            except:
+                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Data/Parameters'}),404)
+            else:
+                user = User.query.filter_by(id=id).all()
+                if len(user) != 0:
+                    product = Products.query.filter_by(id=pid).all()
+                    store = Store.query.filter_by(id=sid).all()
+                    if len(product) != 0 :
+                        if len(store) != 0:
+                            product = product[0]
+                            store = store[0]
+                            quantity = int(quantity)
+                            if product.quantity >= quantity:
+                                totalAmt = quantity * product.amount
+                                product.quantity = product.quantity - quantity
+                                db.session.add(product)
+                                db.session.commit()
+                                sale = Sales()
+                                sale.storeID = sid
+                                sale.productID = pid
+                                sale.quantity = quantity
+                                sale.saleDate = saleDate
+                                sale.stockSold = stockSold
+                                sale.totalAmount = totalAmt
+                                db.session.add(sale)
+                                db.session.commit()
+                                return jsonify({'data': '', 'message': 'Sucessfully','error': 'Product with pid = ' + str(pid) + ' added in Sales'})
+
+                            else:
+                                return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Your desired quantity = ' + str(
+                                    quantity) + ' and available in stock is = ' + str(product.quantity)}),403)
+                        else:
+                            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Store with ' + str(sid) + ' not available'}),404)
+                    else:
+                        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Product with ' + str(pid) + ' not available'}),404)
+                else:
+                    return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'User with ' + str(id) + ' not available'}),404)
 
 
 @app.route('/getSales/<int:id>/', methods=['GET'])

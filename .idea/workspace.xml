@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4d00299b-c020-4deb-a4ca-343c2377d4fb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/inventryFlask.py" afterPath="$PROJECT_DIR$/inventryFlask.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -29,8 +28,8 @@
       <file leaf-file-name="inventryFlask.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/inventryFlask.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="945">
-              <caret line="475" column="114" lean-forward="false" selection-start-line="475" selection-start-column="114" selection-end-line="475" selection-end-column="114" />
+            <state relative-caret-position="232">
+              <caret line="416" column="0" lean-forward="true" selection-start-line="416" selection-start-column="0" selection-end-line="416" selection-end-column="0" />
               <folding>
                 <element signature="e#0#63#0" expanded="true" />
                 <element signature="e#937#2161#0" expanded="false" />
@@ -42,6 +41,10 @@
                 <element signature="e#12246#13669#0" expanded="false" />
                 <element signature="e#13735#14882#0" expanded="false" />
                 <element signature="e#14947#15715#0" expanded="false" />
+                <element signature="e#15780#18834#0" expanded="false" />
+                <element signature="e#18898#19768#0" expanded="false" />
+                <element signature="e#19846#21454#0" expanded="false" />
+                <element signature="e#21534#23135#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -196,7 +199,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="3" />
+      <option name="time" value="4" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -216,14 +219,18 @@
             <element signature="e#12246#13669#0" expanded="false" />
             <element signature="e#13735#14882#0" expanded="false" />
             <element signature="e#14947#15715#0" expanded="false" />
+            <element signature="e#15780#18834#0" expanded="false" />
+            <element signature="e#18898#19768#0" expanded="false" />
+            <element signature="e#19846#21454#0" expanded="false" />
+            <element signature="e#21534#23135#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/inventryFlask.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="945">
-          <caret line="475" column="114" lean-forward="false" selection-start-line="475" selection-start-column="114" selection-end-line="475" selection-end-column="114" />
+        <state relative-caret-position="232">
+          <caret line="416" column="0" lean-forward="true" selection-start-line="416" selection-start-column="0" selection-end-line="416" selection-end-column="0" />
           <folding>
             <element signature="e#0#63#0" expanded="true" />
             <element signature="e#937#2161#0" expanded="false" />
@@ -235,6 +242,10 @@
             <element signature="e#12246#13669#0" expanded="false" />
             <element signature="e#13735#14882#0" expanded="false" />
             <element signature="e#14947#15715#0" expanded="false" />
+            <element signature="e#15780#18834#0" expanded="false" />
+            <element signature="e#18898#19768#0" expanded="false" />
+            <element signature="e#19846#21454#0" expanded="false" />
+            <element signature="e#21534#23135#0" expanded="false" />
           </folding>
         </state>
       </provider>

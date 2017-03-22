@@ -416,8 +416,6 @@ def getStores():
                 return jsonify({'data': stores, 'message': 'Sucessfull', 'error': ''}, )
 
 
-
-
 @app.route('/AddSales', methods=['POST'])
 def AddSales():
     try:
@@ -455,6 +453,7 @@ def AddSales():
                                 db.session.add(product)
                                 db.session.commit()
                                 sale = Sales()
+                                sale.userID = id
                                 sale.storeID = sid
                                 sale.productID = pid
                                 sale.quantity = quantity
@@ -476,31 +475,27 @@ def AddSales():
                     return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'User with ' + str(id) + ' not available'}),404)
 
 
-@app.route('/getSales/<int:id>/', methods=['GET'])
-def getSales(id):
+@app.route('/getSales', methods=['GET'])
+def getSales():
     try:
-        id = id
+        token = request.headers['token']
     except:
-        return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid Parameter'})
+        return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
     else:
-        user = User.query.filter_by(id=id).all()
-        if len(user) == 0:
-            return jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid User ID'})
+        try:
+            id = User.verifyToken(token=token)
+        except:
+            return make_response(jsonify({'data': '', 'message': 'Failed', 'error': 'Invalid token'}), 404)
         else:
-            user = user[0]
-            if user.Role == False:
-                data = []
-                sales = Sales.query.all()
-                for s in sales:
-                    sname = Store.query.filter_by(id=s.storeID).all()
-                    pname = Products.query.filter_by(id=s.productID).all()
+            data = []
+            sales = Sales.query.filter_by(userID=id).all()
+            print(Sales.query.all())
+            for s in sales:
+                sname = Store.query.filter_by(id=s.storeID).all()
+                pname = Products.query.filter_by(id=s.productID).all()
+                data.append({'sale': s, 'productName': pname[0].name,'storeName':sname[0].storeName, 'storeLocation':sname[0].location})
+            return jsonify({'data': data, 'message': 'Sucessfull', 'error': ''})
 
-                    data.append({'sale': s, 'productName': pname[0].name,
-                                 'storeName':sname[0].storeName, 'storeLocation':sname[0].location})
-                return jsonify({'data': data, 'message': 'Sucessfull', 'error': ''})
-
-            else:
-                return jsonify({'data': '', 'message': 'Failed', 'error': 'You have not permission to get Sales'})
 
 
 @app.route('/getPredictSale', methods=['POST'])
@@ -584,7 +579,7 @@ def getPredictStore():
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return 'Hello Inventry App!'
 
 @app.errorhandler(404)
 def not_found(error):
